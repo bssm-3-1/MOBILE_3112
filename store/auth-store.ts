@@ -1,6 +1,13 @@
 import { create } from 'zustand';
 import User from '@type/User';
-import { signup, login, logout, SignupPayload, LoginPayload } from '@/api/auth';
+import {
+    signup,
+    login,
+    logout,
+    refreshToken as authRefresh,
+    SignupPayload,
+    LoginPayload,
+} from '@/api/auth';
 // TODO 실습 1: expo-secure-store를 import하세요
 import * as SecureStore from 'expo-secure-store';
 import { getMe } from '@/api/users';
@@ -161,7 +168,25 @@ export const useAuthStore = create<AuthState>((set, get) => ({
         // 2. authRefresh(currentRefreshToken)으로 새 토큰 발급
         // 3. SecureStore와 store 양쪽 모두 업데이트
         // 4. 새 accessToken을 반환
-        throw new Error('Not implemented'); // 실습 5 완료 후 삭제
+        const currentRefreshToken = get().refreshToken;
+
+        if (!currentRefreshToken) {
+            throw new Error('No refresh token');
+        }
+
+        const res = await authRefresh(currentRefreshToken);
+
+        await SecureStore.setItemAsync(TOKEN_KEY, res.accessToken);
+        await SecureStore.setItemAsync(REFRESH_KEY, res.refreshToken);
+
+        set({
+            user: res.user,
+            accessToken: res.accessToken,
+            refreshToken: res.refreshToken,
+            status: 'authenticated',
+        });
+
+        return res.accessToken;
     },
 
     setTokens: (accessToken, refreshToken) => {
