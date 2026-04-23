@@ -44,6 +44,7 @@ apiClient.interceptors.response.use(
             const store = useAuthStore.getState();
 
             // TODO 실습 4-3: store.logOut()을 호출하세요
+            await store.logOut();
 
             // TODO 실습 5-2: logOut 대신 토큰 갱신을 시도하고 원본 요청을 재시도하세요
             //   - isRefreshing 플래그로 중복 갱신 방지
