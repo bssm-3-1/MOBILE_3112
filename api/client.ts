@@ -1,12 +1,16 @@
 import axios, { InternalAxiosRequestConfig } from 'axios';
 import Constants from 'expo-constants';
 
-const BASE_URL: string =
-    (Constants.expoConfig?.extra?.apiUrl as string | undefined) ??
-    'https://bssm-api.zer0base.me';
+export const API_BASE_URL = Constants.expoConfig?.extra?.apiUrl as
+    | string
+    | undefined;
+
+if (!API_BASE_URL) {
+    throw new Error('EXPO_PUBLIC_API_URL is not configured');
+}
 
 const apiClient = axios.create({
-    baseURL: BASE_URL,
+    baseURL: API_BASE_URL,
     headers: {
         'Content-Type': 'application/json',
     },

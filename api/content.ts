@@ -1,10 +1,5 @@
-import apiClient from './client';
+import apiClient, { API_BASE_URL } from './client';
 import { Post, Comment, Reply } from '@type/Post';
-import { Platform } from 'react-native';
-
-const BASE_URL = Platform.select({
-    default: 'https://bssm-api.zer0base.me',
-});
 
 export interface CreatePostPayload {
     caption?: string;
@@ -32,7 +27,7 @@ export const createPost = async (payload: CreatePostPayload): Promise<Post> => {
     const { useAuthStore } = require('@/store/auth-store');
     const token: string | null = useAuthStore.getState().accessToken;
 
-    const res = await fetch(`${BASE_URL}/content`, {
+    const res = await fetch(`${API_BASE_URL}/content`, {
         method: 'POST',
         headers: {
             ...(token ? { Authorization: `Bearer ${token}` } : {}),
