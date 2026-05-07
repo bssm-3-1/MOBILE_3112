@@ -1,5 +1,5 @@
 import React from 'react';
-import { View, StyleSheet } from 'react-native';
+import {View, StyleSheet, Text, Pressable} from 'react-native';
 import * as Sentry from '@sentry/react-native';
 import {log} from "../utils/logger";
 
@@ -22,7 +22,7 @@ export class ErrorBoundary extends React.Component<Props, State> {
     // 렌더 직전에 호출 — state만 업데이트, 부수 효과 금지
     static getDerivedStateFromError(error: Error): State {
         // TODO 1-1. hasError: true, error를 담은 State 객체를 반환하세요.
-        throw new Error('Not implemented');
+        return { hasError: true, error };
     }
 
     // 렌더 완료 후 호출 — 부수 효과(로깅, 네트워크) 허용
@@ -33,8 +33,8 @@ export class ErrorBoundary extends React.Component<Props, State> {
 
         Sentry.captureException(error, { extra: info as unknown as Record<string, unknown> });
 
-        this.props.onError?.(error, info);
         // TODO 1-2. this.props.onError?.(error, info)를 호출하세요.
+        this.props.onError?.(error, info);
     }
 
     private handleReset = () => {
@@ -45,6 +45,10 @@ export class ErrorBoundary extends React.Component<Props, State> {
         if (this.state.hasError) {
             // TODO 1-3. props.fallback이 있으면 fallback을, 없으면 DefaultFallback을 렌더링하세요.
             //           DefaultFallback에는 error={this.state.error} onReset={this.handleReset}을 전달합니다.
+            if (this.props.fallback) {
+                return this.props.fallback;
+            }
+            else return <DefaultFallback error={this.state.error} onReset={this.handleReset} />;
         }
         return this.props.children;
     }
@@ -64,6 +68,9 @@ function DefaultFallback({
                   - "다시 시도" Pressable 버튼 (onPress: onReset)
                   - 에러 코드 텍스트 (error?.message?.slice(0, 24) ?? 'UNKNOWN')
             */}
+            <Text style={styles.message}>문제가 발생했어요</Text>
+            <Pressable style={styles.button} onPress={onReset}><Text style={styles.buttonText}>다시 시도</Text></Pressable>
+            <Text>{error?.message?.slice(0, 24) ?? 'UNKNOWN'}</Text>
         </View>
     );
 }
@@ -78,4 +85,13 @@ const styles = StyleSheet.create({
         backgroundColor: '#fff',
     },
     // TODO 1-4. 필요한 스타일을 추가하세요.
+    message: {
+      fontSize: 18, fontWeight: '600',
+    },
+    button: {
+        backgroundColor: '#5a67d8', padding: 12, borderRadius: 8
+    },
+    buttonText: {
+        color: '#fff', fontWeight: '600',
+    }
 });
